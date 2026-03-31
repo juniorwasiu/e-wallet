@@ -1,5 +1,5 @@
-import { LoginRegisterScreen } from "./components/LoginRegisterScreen";
+import LoginRegisterScreen from './components/LoginRegisterScreen';
 
-export default function LoginPage() {
-  return <LoginRegisterScreen />;
+export default function SignUpLoginPage() {
+    return <LoginRegisterScreen />;
 }

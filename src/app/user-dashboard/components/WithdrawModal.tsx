@@ -1,103 +1,149 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
-import { X, Landmark, ArrowRight, Loader2, AlertTriangle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+import { User } from '@/lib/store';
+import { db } from '@/lib/db';
+import { X, ArrowUpRight, DollarSign, CheckCircle, AlertCircle } from 'lucide-react';
 
-interface WithdrawModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+interface Props {
+    user: User;
+    onClose: () => void;
+    onSuccess: () => void;
 }
 
-export const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose }) => {
-  const [amount, setAmount] = useState('');
-  const [loading, setLoading] = useState(false);
+export default function WithdrawModal({ user, onClose, onSuccess }: Props) {
+    const [amount, setAmount] = useState('');
+    const [destination, setDestination] = useState('');
+    const [description, setDescription] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [amountError, setAmountError] = useState('');
+    const [success, setSuccess] = useState(false);
 
-  const handleWithdraw = async () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      onClose();
-      alert('Withdrawal request submitted and pending approval!');
-    }, 2000);
-  };
+    const formatCurrency = (v: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
 
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="bg-card border border-border w-full max-w-lg rounded-[2.5rem] p-8 shadow-2xl"
-          >
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-bold">Withdraw Funds</h3>
-              <button 
-                onClick={onClose}
-                className="p-2 hover:bg-secondary rounded-xl transition-colors"
-              >
-                <X size={24} />
-              </button>
-            </div>
+    const handleWithdraw = async () => {
+        const amt = parseFloat(amount);
+        if (!amount || isNaN(amt) || amt <= 0) { setAmountError('Please enter a valid amount'); return; }
+        if (amt < 1) { setAmountError('Minimum withdrawal is $1.00'); return; }
+        if (amt > user.balance) { setAmountError(`Insufficient balance. Available: ${formatCurrency(user.balance)}`); return; }
+        if (amt > 10000) { setAmountError('Maximum single withdrawal is $10,000'); return; }
+        if (!destination) { setAmountError('Please enter a destination'); return; }
+        setAmountError('');
+        console.log('[WithdrawModal] 💸 Processing withdrawal:', amt, '→', destination);
+        setIsProcessing(true);
+        const result = await db.wallet.withdraw(user.id, amt, description || `Withdrawal to ${destination}`, destination);
+        setIsProcessing(false);
+        if (result.success) {
+            setSuccess(true);
+            toast.success(`$${amt.toFixed(2)} withdrawn successfully`);
+        } else {
+            setAmountError(result.error ?? 'Withdrawal failed. Please try again.');
+            toast.error(result.error ?? 'Withdrawal failed. Please try again.');
+            console.error('[WithdrawModal] ❌ Withdrawal failed:', result.error);
+        }
+    };
 
-            <div className="space-y-6">
-              <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex gap-3 text-amber-700 text-sm">
-                <AlertTriangle className="shrink-0" size={20} />
-                <p>Withdrawals are processed within 24 hours after approval. Make sure your bank details are correct.</p>
-              </div>
-
-              <div>
-                <label className="text-sm font-bold opacity-60 mb-2 block uppercase tracking-widest">Amount to Withdraw</label>
-                <div className="relative group">
-                  <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-black text-primary">$</span>
-                  <input 
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    className="w-full bg-secondary border-none rounded-3xl py-6 pl-12 pr-6 text-3xl font-black outline-none ring-2 ring-transparent focus:ring-primary/20 transition-all font-mono"
-                    placeholder="0.00"
-                  />
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[hsl(var(--border))]">
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center">
+                            <ArrowUpRight size={18} className="text-red-500" />
+                        </div>
+                        <div>
+                            <h3 className="text-base font-semibold">Withdraw Funds</h3>
+                            <p className="text-xs text-[hsl(var(--muted-foreground))]">Available: {formatCurrency(user.balance)}</p>
+                        </div>
+                    </div>
+                    <button onClick={onClose} className="p-2 rounded-lg hover:bg-[hsl(var(--muted))] transition-colors">
+                        <X size={18} />
+                    </button>
                 </div>
-                <div className="mt-2 flex justify-between items-center px-1">
-                   <p className="text-xs text-muted-foreground">Available Balance: <span className="font-bold text-foreground">$45,285.00</span></p>
-                   <button onClick={() => setAmount('45285')} className="text-xs font-bold text-primary hover:underline">Withdraw All</button>
+
+                <div className="p-6">
+                    {!success ? (
+                        <div className="space-y-5">
+                            {user.kycStatus !== 'approved' && (
+                                <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-3">
+                                    <AlertCircle size={16} className="text-amber-600 mt-0.5 shrink-0" />
+                                    <p className="text-xs text-amber-700">KYC verification required for withdrawals. Complete your verification in the KYC section.</p>
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="label">Amount to Withdraw</label>
+                                <p className="text-xs text-[hsl(var(--muted-foreground))] mb-2">Max $10,000 per transaction · Available: {formatCurrency(user.balance)}</p>
+                                <div className="relative">
+                                    <DollarSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        step="0.01"
+                                        className={`input-field pl-8 text-lg font-semibold tabular-nums ${amountError ? 'border-red-400' : ''}`}
+                                        placeholder="0.00"
+                                        value={amount}
+                                        onChange={e => { setAmount(e.target.value); setAmountError(''); }}
+                                    />
+                                </div>
+                                {amountError && <p className="field-error">{amountError}</p>}
+                                <div className="flex gap-2 mt-2">
+                                    {['100', '250', '500', '1000'].map(v => (
+                                        <button key={`wq-${v}`} type="button" onClick={() => setAmount(v)} className="flex-1 text-xs py-1.5 rounded-lg border border-[hsl(var(--border))] hover:border-red-400 hover:text-red-500 font-medium transition-colors">
+                                            ${v}
+                                        </button>
+                                    ))}
+                                    <button type="button" onClick={() => setAmount(user.balance.toFixed(2))} className="flex-1 text-xs py-1.5 rounded-lg border border-[hsl(var(--border))] hover:border-red-400 hover:text-red-500 font-medium transition-colors">
+                                        Max
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="label">Destination Account / Bank</label>
+                                <input
+                                    className="input-field"
+                                    placeholder="e.g., Chase Bank, Venmo, ****1234"
+                                    value={destination}
+                                    onChange={e => setDestination(e.target.value)}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="label">Notes (optional)</label>
+                                <input
+                                    className="input-field"
+                                    placeholder="e.g., Rent payment, Emergency fund..."
+                                    value={description}
+                                    onChange={e => setDescription(e.target.value)}
+                                />
+                            </div>
+
+                            <button
+                                onClick={handleWithdraw}
+                                disabled={isProcessing || !amount || user.kycStatus !== 'approved'}
+                                className="btn-danger w-full flex items-center justify-center gap-2 py-3"
+                            >
+                                {isProcessing ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Processing...</> : <>Withdraw {amount ? `$${parseFloat(amount).toFixed(2)}` : 'Funds'}</>}
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="text-center py-4 space-y-4">
+                            <div className="w-16 h-16 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center mx-auto">
+                                <CheckCircle size={28} className="text-emerald-600" />
+                            </div>
+                            <div>
+                                <p className="text-lg font-bold text-emerald-700">Withdrawal Successful!</p>
+                                <p className="text-2xl font-bold tabular-nums mt-1">${parseFloat(amount).toFixed(2)}</p>
+                                <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">sent to {destination}</p>
+                            </div>
+                            <button onClick={onSuccess} className="btn-primary w-full py-3">Done</button>
+                        </div>
+                    )}
                 </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-bold opacity-60 mb-2 block uppercase tracking-widest">Destination Bank</label>
-                <button className="w-full p-6 bg-secondary hover:bg-secondary/80 rounded-3xl flex items-center justify-between transition-colors border border-dashed border-border/50">
-                   <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm">
-                         <Landmark size={20} />
-                      </div>
-                      <div className="text-left">
-                         <p className="font-bold text-sm">Chase Bank •••• 4242</p>
-                         <p className="text-xs text-muted-foreground">Checking Account</p>
-                      </div>
-                   </div>
-                   <ArrowRight size={18} className="text-muted-foreground" />
-                </button>
-              </div>
-
-              <button 
-                disabled={!amount || loading}
-                onClick={handleWithdraw}
-                className="w-full bg-primary text-primary-foreground py-5 rounded-3xl font-bold flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50"
-              >
-                {loading ? <Loader2 className="animate-spin" /> : (
-                  <>
-                    Confirm Withdrawal
-                    <ArrowRight size={20} />
-                  </>
-                )}
-              </button>
             </div>
-          </motion.div>
         </div>
-      )}
-    </AnimatePresence>
-  );
-};
+    );
+}
