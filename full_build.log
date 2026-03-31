@@ -1,0 +1,69 @@
+
+> ewallet@0.1.0 build
+> next build
+
+   ▲ Next.js 15.1.11
+
+   Creating an optimized production build ...
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|/home/jaeybean12/development/e-wallet/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!/home/jaeybean12/development/e-wallet/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!/home/jaeybean12/development/e-wallet/src/styles/tailwind.css': No serializer registered for PostCSSSyntaxError
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> PostCSSSyntaxError
+Failed to compile.
+
+./src/styles/tailwind.css:53:9
+Syntax error: /home/jaeybean12/development/e-wallet/src/styles/tailwind.css The `hover:bg-[hsl(214,` class does not exist. If `hover:bg-[hsl(214,` is a custom class, make sure it is defined within a `@layer` directive.
+
+  51 | @layer components {
+  52 |     .btn-primary {
+> 53 |         @apply bg-[hsl(var(--primary))] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[hsl(214, 74%, 22%)] active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100;
+     |         ^
+  54 |     }
+  55 |
+
+./src/styles/tailwind.css
+Syntax error: /home/jaeybean12/development/e-wallet/src/styles/tailwind.css The `hover:bg-[hsl(214,` class does not exist. If `hover:bg-[hsl(214,` is a custom class, make sure it is defined within a `@layer` directive. (53:9)
+
+  51 | @layer components {
+  52 |     .btn-primary {
+> 53 |         @apply bg-[hsl(var(--primary))] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[hsl(214, 74%, 22%)] active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100;
+     |         ^
+  54 |     }
+  55 | 
+
+    at tryRunOrWebpackError (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:28:314962)
+    at __webpack_require_module__ (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:28:131434)
+    at __nested_webpack_require_161179__ (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:28:130872)
+    at /home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:28:131723
+    at symbolIterator (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/neo-async/async.js:1:14444)
+    at done (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/neo-async/async.js:1:14824)
+    at Hook.eval [as callAsync] (eval at create (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:13:9218), <anonymous>:15:1)
+    at Hook.CALL_ASYNC_DELEGATE [as _callAsync] (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:13:6372)
+    at /home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:28:130593
+    at symbolIterator (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/neo-async/async.js:1:14402)
+-- inner error --
+Syntax error: /home/jaeybean12/development/e-wallet/src/styles/tailwind.css The `hover:bg-[hsl(214,` class does not exist. If `hover:bg-[hsl(214,` is a custom class, make sure it is defined within a `@layer` directive. (53:9)
+
+  51 | @layer components {
+  52 |     .btn-primary {
+> 53 |         @apply bg-[hsl(var(--primary))] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[hsl(214, 74%, 22%)] active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100;
+     |         ^
+  54 |     }
+  55 | 
+
+    at Object.<anonymous> (/home/jaeybean12/development/e-wallet/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!/home/jaeybean12/development/e-wallet/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!/home/jaeybean12/development/e-wallet/src/styles/tailwind.css:1:7)
+    at /home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:28:955548
+    at Hook.eval [as call] (eval at create (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:13:8996), <anonymous>:7:1)
+    at Hook.CALL_DELEGATE [as _call] (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:13:6266)
+    at /home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:28:131467
+    at tryRunOrWebpackError (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:28:314916)
+    at __webpack_require_module__ (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:28:131434)
+    at __nested_webpack_require_161179__ (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:28:130872)
+    at /home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/webpack/bundle5.js:28:131723
+    at symbolIterator (/home/jaeybean12/development/e-wallet/node_modules/next/dist/compiled/neo-async/async.js:1:14444)
+
+Generated code for /home/jaeybean12/development/e-wallet/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!/home/jaeybean12/development/e-wallet/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!/home/jaeybean12/development/e-wallet/src/styles/tailwind.css
+
+Import trace for requested module:
+./src/styles/tailwind.css
+
+
+> Build failed because of webpack errors

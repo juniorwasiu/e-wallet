@@ -142,7 +142,7 @@ export default function KYCSection({ user, onUpdate }: Props) {
                         <Upload size={28} className="mx-auto mb-3 text-[hsl(var(--muted-foreground))]" />
                         <p className="text-sm font-semibold text-[hsl(var(--foreground))]">Upload ID Document</p>
                         <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">JPG, PNG, or PDF — max 10MB per file</p>
-                        <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">Front and back required for Driver's License and State ID</p>
+                        <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">Front and back required for Driver&apos;s License and State ID</p>
                         <button type="button" className="mt-4 btn-secondary text-xs">Browse Files</button>
                     </div>
 

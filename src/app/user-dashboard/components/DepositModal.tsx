@@ -127,7 +127,7 @@ export default function DepositModal({ user, onClose, onSuccess }: Props) {
                     {/* Step: Select type */}
                     {step === 'select_type' && (
                         <div className="space-y-4">
-                            <p className="text-sm text-[hsl(var(--muted-foreground))]">Choose how you'd like to deposit funds into your wallet.</p>
+                            <p className="text-sm text-[hsl(var(--muted-foreground))]">Choose how you&apos;d like to deposit funds into your wallet.</p>
                             <div className="space-y-3">
                                 <button
                                     onClick={() => handleSelectType('direct_deposit')}
@@ -171,7 +171,7 @@ export default function DepositModal({ user, onClose, onSuccess }: Props) {
                             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                                 <p className="text-sm font-semibold text-blue-800 mb-2">How Direct Deposit Works</p>
                                 <ol className="text-xs text-blue-700 space-y-1.5 list-decimal list-inside">
-                                    <li>We'll generate a dedicated bank account and routing number for you</li>
+                                    <li>We&apos;ll generate a dedicated bank account and routing number for you</li>
                                     <li>Provide these details to your employer or payment source</li>
                                     <li>Funds are deposited directly into your eWallet each pay period</li>
                                     <li>Receive instant notifications when funds arrive</li>
@@ -179,7 +179,7 @@ export default function DepositModal({ user, onClose, onSuccess }: Props) {
                             </div>
                             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
                                 <Clock size={15} className="text-amber-600 mt-0.5 shrink-0" />
-                                <p className="text-xs text-amber-700">Account generation typically takes 1–2 business hours. You'll receive an email notification once your account is ready.</p>
+                                <p className="text-xs text-amber-700">Account generation typically takes 1–2 business hours. You&apos;ll receive an email notification once your account is ready.</p>
                             </div>
                             <div className="flex gap-3">
                                 <button onClick={() => setStep('select_type')} className="btn-secondary flex-1">Back</button>
@@ -247,7 +247,7 @@ export default function DepositModal({ user, onClose, onSuccess }: Props) {
                                 <RefreshCw size={13} className="text-blue-500 animate-spin shrink-0" />
                                 <span>This page will automatically update when your account is ready — no need to refresh.</span>
                             </div>
-                            <p className="text-xs text-[hsl(var(--muted-foreground))]">You'll receive an email at {user.email} once your account details are ready.</p>
+                            <p className="text-xs text-[hsl(var(--muted-foreground))]">You&apos;ll receive an email at {user.email} once your account details are ready.</p>
                             <button onClick={onClose} className="btn-secondary w-full">Close</button>
                         </div>
                     )}

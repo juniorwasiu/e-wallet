@@ -27,7 +27,7 @@ export default function SupportSection({ user }: Props) {
     const [replyText, setReplyText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isReplying, setIsReplying] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<{ subject: string; category: string; message: string }>();
 

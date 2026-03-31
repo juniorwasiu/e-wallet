@@ -273,7 +273,7 @@ export const MOCK_TICKETS: SupportTicket[] = [
 // ─── App State (in-memory simulation) ─────────────────────────────────────────
 // Backend integration point: replace with React Context + API calls or Zustand store
 let _users = [...MOCK_USERS];
-let _transactions = [...MOCK_TRANSACTIONS];
+const _transactions = [...MOCK_TRANSACTIONS];
 let _tickets = [...MOCK_TICKETS];
 let _currentUserId: string | null = 'user-001';
 let _currentRole: 'user' | 'admin' | null = 'user';
@@ -285,7 +285,7 @@ export const AppStore = {
         if (_currentRole === 'admin') return { id: 'admin-001', firstName: 'Admin', lastName: 'Ops', email: 'admin@ewallet.io', role: 'admin' } as User;
         return _users.find(u => u.id === _currentUserId) || null;
     },
-    login: (email: string, password: string): { success: boolean; role: 'user\' | \'admin' } => {
+    login: (email: string, password: string): { success: boolean; role: 'user' | 'admin' } => {
         // Backend integration point: replace with real auth API
         if (email === 'admin@ewallet.io' && password === 'Admin@2026!') {
             _currentRole = 'admin';

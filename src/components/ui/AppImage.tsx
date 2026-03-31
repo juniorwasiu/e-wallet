@@ -19,7 +19,7 @@ interface AppImageProps {
     fallbackSrc?: string;
     loading?: 'lazy' | 'eager';
     unoptimized?: boolean;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 const AppImage = memo(function AppImage({
@@ -68,9 +68,8 @@ const AppImage = memo(function AppImage({
     }, [className, isLoading, onClick]);
 
     const imageProps = useMemo(() => {
-        const baseProps: any = {
+        const baseProps: Record<string, unknown> & { src: string } = {
             src: imageSrc,
-            alt,
             className: imageClassName,
             quality,
             placeholder,
@@ -91,12 +90,13 @@ const AppImage = memo(function AppImage({
         }
 
         return baseProps;
-    }, [imageSrc, alt, imageClassName, quality, placeholder, blurDataURL, resolvedUnoptimized, priority, loading, handleError, handleLoad, onClick]);
+    }, [imageSrc, imageClassName, quality, placeholder, blurDataURL, resolvedUnoptimized, priority, loading, handleError, handleLoad, onClick]);
 
     if (fill) {
         return (
             <div className="relative" style={{ width: '100%', height: '100%' }}>
                 <Image
+                    alt={alt}
                     {...imageProps}
                     fill
                     sizes={sizes || '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'}
@@ -109,6 +109,7 @@ const AppImage = memo(function AppImage({
 
     return (
         <Image
+            alt={alt}
             {...imageProps}
             width={width || 400}
             height={height || 300}

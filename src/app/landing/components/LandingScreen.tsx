@@ -515,7 +515,7 @@ export default function LandingScreen() {
                                     <div className="flex items-center gap-1 mb-4">
                                         {[...Array(5)].map((_, i) => <Star key={i} size={12} className="text-amber-400 fill-amber-400" />)}
                                     </div>
-                                    <p className="text-[hsl(var(--foreground))] text-sm leading-relaxed mb-5">"{t.quote}"</p>
+                                    <p className="text-[hsl(var(--foreground))] text-sm leading-relaxed mb-5">&quot;{t.quote}&quot;</p>
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style={{ backgroundColor: t.color }}>
                                             {t.avatar}
