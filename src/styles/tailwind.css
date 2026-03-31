@@ -1,3 +1,133 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@layer base {
+    :root {
+        --primary: 214 74% 28%;
+        --primary-foreground: 0 0% 100%;
+        --accent: 158 100% 36%;
+        --accent-foreground: 0 0% 100%;
+        --background: 220 20% 97%;
+        --foreground: 220 15% 12%;
+        --card: 0 0% 100%;
+        --card-foreground: 220 15% 12%;
+        --muted: 220 14% 94%;
+        --muted-foreground: 220 10% 48%;
+        --border: 220 13% 88%;
+        --input: 220 13% 88%;
+        --ring: 214 74% 28%;
+        --destructive: 0 84% 55%;
+        --destructive-foreground: 0 0% 100%;
+        --warning: 38 92% 50%;
+        --success: 158 64% 40%;
+        --radius: 0.625rem;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tabular-nums {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+@layer components {
+    .btn-primary {
+        @apply bg-[hsl(var(--primary))] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[hsl(214, 74%, 22%)] active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100;
+    }
+
+    .btn-secondary {
+        @apply bg-white border border-[hsl(var(--border))] text-[hsl(var(--foreground))] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[hsl(var(--muted))] active:scale-95 transition-all duration-150;
+    }
+
+    .btn-danger {
+        @apply bg-[hsl(var(--destructive))] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-red-700 active:scale-95 transition-all duration-150;
+    }
+
+    .card {
+        @apply bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-xl shadow-sm;
+    }
+
+    .input-field {
+        @apply w-full border border-[hsl(var(--border))] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent bg-white placeholder:text-[hsl(var(--muted-foreground))] transition-all duration-150;
+    }
+
+    .label {
+        @apply block text-sm font-medium text-[hsl(var(--foreground))] mb-1;
+    }
+
+    .field-error {
+        @apply text-xs text-[hsl(var(--destructive))] mt-1;
+    }
+
+    .badge-success {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200;
+    }
+
+    .badge-warning {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200;
+    }
+
+    .badge-danger {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200;
+    }
+
+    .badge-info {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200;
+    }
+
+    .badge-neutral {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200;
+    }
+
+    .sidebar-item {
+        @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))] hover:text-[hsl(var(--foreground))] transition-all duration-150 cursor-pointer;
+    }
+
+    .sidebar-item-active {
+        @apply bg-[hsl(214, 74%, 28%, 0.1)] text-[hsl(var(--primary))] font-semibold;
+    }
+
+    .skeleton {
+        @apply animate-pulse bg-[hsl(var(--muted))] rounded-md;
+    }
+
+    .safe-area-pb {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+}
+
+@layer utilities {
+    .animate-in {
+        animation: fadeIn 0.3s ease-out;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -1,14 +1,32 @@
-"use client";
+'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import SplashScreen from '@/components/SplashScreen';
+import LandingScreen from './landing/components/LandingScreen';
 
 export default function Home() {
-  const router = useRouter();
+    const [showSplash, setShowSplash] = useState(true);
+    const [splashDone, setSplashDone] = useState(false);
 
-  useEffect(() => {
-    router.push('/landing');
-  }, [router]);
+    useEffect(() => {
+        // Only show splash on first visit per session
+        const seen = sessionStorage.getItem('splash_seen');
+        if (seen) {
+            setShowSplash(false);
+            setSplashDone(true);
+        }
+    }, []);
 
-  return null;
+    const handleSplashComplete = () => {
+        sessionStorage.setItem('splash_seen', '1');
+        setShowSplash(false);
+        setSplashDone(true);
+    };
+
+    return (
+        <>
+            {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+            {splashDone && <LandingScreen />}
+        </>
+    );
 }

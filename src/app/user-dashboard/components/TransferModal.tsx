@@ -1,132 +1,184 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
-import { X, Send, ArrowRight, Loader2, Search, User } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+import { User } from '@/lib/store';
+import { db } from '@/lib/db';
+import { X, Send, DollarSign, CheckCircle, AlertCircle, Search } from 'lucide-react';
 
-interface TransferModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+interface Props {
+    user: User;
+    onClose: () => void;
+    onSuccess: () => void;
 }
 
-export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose }) => {
-  const [amount, setAmount] = useState('');
-  const [recipient, setRecipient] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1);
+export default function TransferModal({ user, onClose, onSuccess }: Props) {
+    const [recipientEmail, setRecipientEmail] = useState('');
+    const [amount, setAmount] = useState('');
+    const [note, setNote] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState(false);
+    const [confirming, setConfirming] = useState(false);
 
-  const handleTransfer = async () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      onClose();
-      alert('Transfer successful!');
-    }, 2000);
-  };
+    const formatCurrency = (v: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
 
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="bg-card border border-border w-full max-w-lg rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden"
-          >
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-bold">Send Money</h3>
-              <button 
-                onClick={onClose}
-                className="p-2 hover:bg-secondary rounded-xl transition-colors"
-              >
-                <X size={24} />
-              </button>
-            </div>
+    const handleReview = () => {
+        const amt = parseFloat(amount);
+        if (!recipientEmail) { setError('Recipient email is required'); return; }
+        if (!amount || isNaN(amt) || amt <= 0) { setError('Enter a valid amount'); return; }
+        if (amt > user.balance) { setError(`Insufficient balance. Available: ${formatCurrency(user.balance)}`); return; }
+        if (recipientEmail === user.email) { setError('You cannot transfer to yourself'); return; }
+        setError('');
+        setConfirming(true);
+    };
 
-            <div className="space-y-6">
-              {step === 1 ? (
-                <div className="space-y-6">
-                  <div>
-                    <label className="text-sm font-bold opacity-60 mb-2 block uppercase tracking-widest">To Recipient</label>
-                    <div className="relative group">
-                      <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
-                      <input 
-                        type="text"
-                        value={recipient}
-                        onChange={(e) => setRecipient(e.target.value)}
-                        className="w-full bg-secondary border-none rounded-3xl py-5 pl-14 pr-6 font-bold outline-none ring-2 ring-transparent focus:ring-primary/20 transition-all text-sm"
-                        placeholder="Email or Wallet ID"
-                      />
+    const handleTransfer = async () => {
+        console.log('[TransferModal] 🔄 Initiating transfer:', parseFloat(amount), '→', recipientEmail);
+        setIsProcessing(true);
+        const result = await db.wallet.transfer(user.id, recipientEmail, parseFloat(amount));
+        setIsProcessing(false);
+        if (result.success) {
+            setSuccess(true);
+            toast.success(`$${parseFloat(amount).toFixed(2)} transferred successfully`);
+        } else {
+            setError(result.error || 'Transfer failed');
+            setConfirming(false);
+            console.error('[TransferModal] ❌ Transfer failed:', result.error);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[hsl(var(--border))]">
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+                            <Send size={18} className="text-blue-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-base font-semibold">Send Money</h3>
+                            <p className="text-xs text-[hsl(var(--muted-foreground))]">Transfer to another eWallet user</p>
+                        </div>
                     </div>
-                  </div>
-
-                  <div className="p-4 bg-secondary/30 rounded-3xl">
-                     <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-muted-foreground/60">Recent Recipients</p>
-                     <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                        {[1, 2, 3, 4].map((i) => (
-                          <button key={i} className="flex flex-col items-center gap-2 shrink-0">
-                             <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all">
-                                <User size={24} />
-                             </div>
-                             <span className="text-[10px] font-bold">User {i}</span>
-                          </button>
-                        ))}
-                     </div>
-                  </div>
-
-                  <button 
-                    disabled={!recipient}
-                    onClick={() => setStep(2)}
-                    className="w-full bg-primary text-primary-foreground py-5 rounded-3xl font-bold flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50"
-                  >
-                    Next Step
-                    <ArrowRight size={20} />
-                  </button>
+                    <button onClick={onClose} className="p-2 rounded-lg hover:bg-[hsl(var(--muted))] transition-colors">
+                        <X size={18} />
+                    </button>
                 </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="text-center pb-4 border-b border-border">
-                     <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center text-primary mx-auto mb-4">
-                        <User size={32} />
-                     </div>
-                     <p className="font-black text-xl">{recipient}</p>
-                     <button onClick={() => setStep(1)} className="text-xs font-bold text-primary mt-1 hover:underline">Change Recipient</button>
-                  </div>
 
-                  <div>
-                    <label className="text-sm font-bold opacity-60 mb-2 block uppercase tracking-widest text-center">Amount to Send</label>
-                    <div className="relative group text-center">
-                      <span className="text-5xl font-black text-primary mr-2">$</span>
-                      <input 
-                        type="number"
-                        value={amount}
-                        autoFocus
-                        onChange={(e) => setAmount(e.target.value)}
-                        className="bg-transparent border-none w-48 text-5xl font-black outline-none text-center font-mono"
-                        placeholder="0.00"
-                      />
-                    </div>
-                  </div>
+                <div className="p-6">
+                    {!success ? (
+                        !confirming ? (
+                            <div className="space-y-5">
+                                {user.kycStatus !== 'approved' && (
+                                    <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-3">
+                                        <AlertCircle size={16} className="text-amber-600 mt-0.5 shrink-0" />
+                                        <p className="text-xs text-amber-700">KYC verification required for transfers.</p>
+                                    </div>
+                                )}
 
-                  <button 
-                    disabled={!amount || loading}
-                    onClick={handleTransfer}
-                    className="w-full bg-primary text-primary-foreground py-5 rounded-3xl font-bold flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50"
-                  >
-                    {loading ? <Loader2 className="animate-spin" /> : (
-                      <>
-                        Send Now
-                        <Send size={20} />
-                      </>
+                                <div>
+                                    <label className="label">Recipient Email</label>
+                                    <p className="text-xs text-[hsl(var(--muted-foreground))] mb-2">Must be a registered eWallet user</p>
+                                    <div className="relative">
+                                        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+                                        <input
+                                            type="email"
+                                            className={`input-field pl-9 ${error && !amount ? 'border-red-400' : ''}`}
+                                            placeholder="recipient@example.com"
+                                            value={recipientEmail}
+                                            onChange={e => { setRecipientEmail(e.target.value); setError(''); }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="label">Amount</label>
+                                    <p className="text-xs text-[hsl(var(--muted-foreground))] mb-2">Available: {formatCurrency(user.balance)}</p>
+                                    <div className="relative">
+                                        <DollarSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            step="0.01"
+                                            className={`input-field pl-8 text-lg font-semibold tabular-nums ${error && amount ? 'border-red-400' : ''}`}
+                                            placeholder="0.00"
+                                            value={amount}
+                                            onChange={e => { setAmount(e.target.value); setError(''); }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="label">Note (optional)</label>
+                                    <input
+                                        className="input-field"
+                                        placeholder="e.g., Dinner split, Rent, Gift..."
+                                        value={note}
+                                        onChange={e => setNote(e.target.value)}
+                                    />
+                                </div>
+
+                                {error && <p className="field-error text-sm">{error}</p>}
+
+                                <button
+                                    onClick={handleReview}
+                                    disabled={user.kycStatus !== 'approved'}
+                                    className="btn-primary w-full flex items-center justify-center gap-2 py-3"
+                                >
+                                    Review Transfer
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="space-y-5">
+                                <div className="bg-[hsl(var(--muted))] rounded-xl p-5 space-y-3">
+                                    <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wide">Transfer Summary</p>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-[hsl(var(--muted-foreground))]">To</span>
+                                        <span className="text-sm font-semibold">{recipientEmail}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-[hsl(var(--muted-foreground))]">Amount</span>
+                                        <span className="text-xl font-bold text-[hsl(var(--primary))] tabular-nums">{formatCurrency(parseFloat(amount))}</span>
+                                    </div>
+                                    {note && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm text-[hsl(var(--muted-foreground))]">Note</span>
+                                            <span className="text-sm font-medium">{note}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center justify-between pt-2 border-t border-[hsl(var(--border))]">
+                                        <span className="text-sm text-[hsl(var(--muted-foreground))]">Fee</span>
+                                        <span className="text-sm font-semibold text-emerald-600">Free</span>
+                                    </div>
+                                </div>
+
+                                {error && <p className="field-error text-sm">{error}</p>}
+
+                                <div className="flex gap-3">
+                                    <button onClick={() => setConfirming(false)} className="btn-secondary flex-1">Edit</button>
+                                    <button onClick={handleTransfer} disabled={isProcessing} className="btn-primary flex-1 flex items-center justify-center gap-2 py-3">
+                                        {isProcessing ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Sending...</> : <>Confirm Send</>}
+                                    </button>
+                                </div>
+                            </div>
+                        )
+                    ) : (
+                        <div className="text-center py-4 space-y-4">
+                            <div className="w-16 h-16 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center mx-auto">
+                                <CheckCircle size={28} className="text-emerald-600" />
+                            </div>
+                            <div>
+                                <p className="text-lg font-bold text-emerald-700">Transfer Sent!</p>
+                                <p className="text-2xl font-bold tabular-nums mt-1">{formatCurrency(parseFloat(amount))}</p>
+                                <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">sent to {recipientEmail}</p>
+                            </div>
+                            <button onClick={onSuccess} className="btn-primary w-full py-3">Done</button>
+                        </div>
                     )}
-                  </button>
                 </div>
-              )}
             </div>
-          </motion.div>
         </div>
-      )}
-    </AnimatePresence>
-  );
-};
+    );
+}

@@ -1,20 +1,50 @@
-import React from 'react';
-import { Wallet } from 'lucide-react';
+'use client';
+
+import React, { memo, useMemo } from 'react';
+import AppIcon from './AppIcon';
+import AppImage from './AppImage';
 
 interface AppLogoProps {
-  className?: string;
-  size?: number;
+    src?: string; // Image source (optional)
+    iconName?: string; // Icon name when no image
+    size?: number; // Size for icon/image
+    className?: string; // Additional classes
+    onClick?: () => void; // Click handler
 }
 
-export const AppLogo: React.FC<AppLogoProps> = ({ className = '', size = 32 }) => {
-  return (
-    <div className={`flex items-center gap-2 font-bold text-2xl tracking-tight ${className}`}>
-      <div className="bg-primary p-2 rounded-xl text-primary-foreground shadow-lg shadow-primary/20 animate-pulse">
-        <Wallet size={size} />
-      </div>
-      <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-indigo-600">
-        E-Wallet
-      </span>
-    </div>
-  );
-};
+const AppLogo = memo(function AppLogo({
+    src = '/assets/images/app_logo.png',
+    iconName = 'SparklesIcon',
+    size = 64,
+    className = '',
+    onClick,
+}: AppLogoProps) {
+    // Memoize className calculation
+    const containerClassName = useMemo(() => {
+        const classes = ['flex items-center'];
+        if (onClick) classes.push('cursor-pointer hover:opacity-80 transition-opacity');
+        if (className) classes.push(className);
+        return classes.join(' ');
+    }, [onClick, className]);
+
+    return (
+        <div className={containerClassName} onClick={onClick}>
+            {/* Show image if src provided, otherwise show icon */}
+            {src ? (
+                <AppImage
+                    src={src}
+                    alt="Logo"
+                    width={size}
+                    height={size}
+                    className="flex-shrink-0"
+                    priority={true}
+                    unoptimized={src.endsWith('.svg')}
+                />
+            ) : (
+                <AppIcon name={iconName} size={size} className="flex-shrink-0" />
+            )}
+        </div>
+    );
+});
+
+export default AppLogo;
